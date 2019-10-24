@@ -34,8 +34,9 @@ db = scoped_session(sessionmaker(bind=engine))
 def index():
     if "fname" in session:
         username = session["fname"]
+        return render_template("index.html",name=username)
 
-    return render_template("index.html",name=username)
+    return render_template("index.html")
 
 
 @app.route("/signup",methods=['POST','GET'])
@@ -58,14 +59,29 @@ def login():
     if request.method=='POST':
         email = request.form.get('email')
         password = request.form.get('password')
-
+        password = bcrypt.generate_password_hash(password)
         if db.execute("SELECT * FROM users WHERE email = :email ",{"email":email}).rowcount == 1 :
-    
-            fname = db.execute(text("SELECT fname FROM users WHERE email = :email",{"email":email})).fetchone()
-            session["fname"]= fname
-            return redirect(url_for("index"))
+            dbpassword = db.execute("SELECT password FROM users WHERE email=:email",{"email":email}).fetchone()
+        
+            if bcrypt.check_password_hash(dbpassword,password):
+                  fname = db.execute("SELECT fname FROM users WHERE email = :email",{"email":email}).fetchone()
+                  session['fname'] = fname[0]
+                  return redirect(url_for("index"))
+            return render_template("error.html",error="WRONG PASSWORD!!")
         return "not req"
+
+    
     return render_template("login.html")
+
+@app.route('/logout')
+def logout():
+    session.pop('fname',None)
+    return redirect(url_for("index"))
+
+
+
+
+
 
 
 
