@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block body %}
+BOOK
+<ul>
+   {% for book in books %}
+    <li>
+        {{book.title}}
+    </li>
+    {% endfor %}
+
+
+</ul>
+{% endblock %}

@@ -4,7 +4,7 @@
 
  {% block style %}
    
-    <link type="text/css" rel="stylesheet" href="../static/css/fa.css">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='index-style.css') }}">
  {% endblock %}
 
  
@@ -15,10 +15,14 @@
            <h1>HELLO {{name}}</h1>
         {% endif %}
    
-            <form class="form-inde input-group">
-                        <input type="text" class="form-control" placeholder="Search">
+            <form action="{{ url_for('search') }}" method="GET" style="margin: 9rem;" class="input-group">
+                        
+              
+                <input name="titl" type="text" class="form-control" placeholder="Search">
+
+                        
                         <div class="input-group-append">
-                          <button class="btn btn-secondary" type="button">
+                          <button class="btn btn-secondary" type="submit">
                             <i class="fa fa-search"></i>
                           </button>
                         </div>

@@ -38,7 +38,16 @@ def index():
 
     return render_template("index.html")
 
-
+@app.route("/search", methods=["GET"])
+def search():
+    if request.method == 'GET':
+        print('hi')
+        title = request.form.get("titl")
+        print(title)
+        books = db.execute("SELECT * FROM books WHERE author = :title ",{"title": title}).fetchall()
+        print (books)
+        return render_template("search.html", books=books)
+    return render_templatee("index.html")
 @app.route("/signup",methods=['POST','GET'])
 def signup():
     if request.method=='POST':
@@ -61,10 +70,10 @@ def login():
         password = request.form.get('password')
         password = bcrypt.generate_password_hash(password)
         if db.execute("SELECT * FROM users WHERE email = :email ",{"email":email}).rowcount == 1 :
-            dbpassword = db.execute("SELECT password FROM users WHERE email=:email",{"email":email}).fetchone()
-        
-            if bcrypt.check_password_hash(dbpassword,password):
-                  fname = db.execute("SELECT fname FROM users WHERE email = :email",{"email":email}).fetchone()
+            user = db.execute("SELECT * FROM users WHERE email=:email",{"email":email}).fetchone()
+            dbpassword = user.password
+            if bcrypt.check_password_hash(password,dbpassword):
+                  fname = user.fname
                   session['fname'] = fname[0]
                   return redirect(url_for("index"))
             return render_template("error.html",error="WRONG PASSWORD!!")
