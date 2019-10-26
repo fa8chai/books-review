@@ -41,10 +41,9 @@ def index():
 @app.route("/search", methods=["GET"])
 def search():
     if request.method == 'GET':
-        print('hi')
-        title = request.form.get("titl")
-        print(title)
-        books = db.execute("SELECT * FROM books WHERE author = :title ",{"title": title}).fetchall()
+        title = request.args.get("title")
+        books = db.execute("SELECT * FROM books WHERE title = :title ",{"title": title}).fetchall()
+        db.commit()
         print (books)
         return render_template("search.html", books=books)
     return render_templatee("index.html")
