@@ -4,16 +4,19 @@
 
 <!-- Default form register -->
 <form class="text-center border border-light p-5" method="post" action="{{ url_for('signup') }}">
-
+        {% if error %}
+        <span style="color: brown;">{{error}}</span>
+        
+        {% endif %}
         <p class="h4 mb-4">Sign up</p>
     
         
            
-                <!-- First name -->
-                <input name="fname" type="text" id="defaultRegisterFormFirstName" class="form-control  mb-4" placeholder="First name">
+                <!-- username -->
+                <input name="fname" type="text" id="defaultRegisterFormFirstName" class="form-control  mb-4" placeholder="username">
            
-                <!-- Last name -->
-                <input name="lname" type="text" id="defaultRegisterFormLastName" class="form-control  mb-4" placeholder="Last name">
+                <!-- full name -->
+                <input name="lname" type="text" id="defaultRegisterFormLastName" class="form-control  mb-4" placeholder="Full name">
          
     
         <!-- E-mail -->

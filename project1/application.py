@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from flask_bcrypt import Bcrypt
 from sqlalchemy.sql import text
-
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -41,12 +41,48 @@ def index():
 @app.route("/search", methods=["GET"])
 def search():
     if request.method == 'GET':
-        title = request.args.get("title")
-        books = db.execute("SELECT * FROM books WHERE title = :title ",{"title": title}).fetchall()
+        title = request.args.get("title").lower()
+      
+        title = '%' + title + '%'
+        books = db.execute("SELECT * FROM books WHERE LOWER(title) LIKE :title OR LOWER(isbn) LIKE :title OR LOWER(author) LIKE :title OR year LIKE :title",{"title": title}).fetchall()
         db.commit()
         print (books)
         return render_template("search.html", books=books)
     return render_templatee("index.html")
+
+
+
+@app.route('/book/<int:book_id>')
+def book(book_id):
+    book = db.execute("SELECT * FROM books WHERE id = :id",{'id' : book_id}).fetchall()
+    print(book)
+    if book is None :
+        return render_template("error.html",error="NO BOOK")
+    reviews = db.execute("SELECT fname, date, rating, body FROM reviews JOIN users ON user_id = users.id WHERE book_id = :book_id ORDER BY reviews.id DESC ",{'book_id':book_id}).fetchall()
+    print(reviews[0].fname)
+    
+    return render_template('book.html',book=book[0],reviews=reviews)
+
+@app.route('/review',methods=['POST'])
+def review():
+    book_id = request.form.get('book_id')
+    if "fname" in session:
+        print('hello')
+        fname = session['fname']
+        body = request.form.get('body')
+        rating = request.form.get('rating')
+        date = datetime.date(datetime.now())
+       
+        user_id = db.execute("SELECT * FROM users WHERE fname = :fname ",{"fname":fname}).fetchone()
+        user_id = user_id.id
+        db.execute("INSERT INTO reviews (user_id, book_id, date, body, rating) VALUES (:user_id, :book_id,:date, :body, :rating)",{'user_id':user_id,'book_id':book_id, 'date':date ,'body':body,'rating':rating})
+        db.commit()
+        return redirect(url_for("book",book_id = book_id))
+    return redirect(url_for("book",book_id = book_id))
+
+
+
+
 @app.route("/signup",methods=['POST','GET'])
 def signup():
     if request.method=='POST':
@@ -55,10 +91,11 @@ def signup():
         email=request.form.get('email')
         password=request.form.get('password')
         if db.execute("SELECT * FROM users WHERE email = :email ",{"email":email}).rowcount == 1 :
-            return "already exists!!"
+            return render_template('login.html',error="USER ALREADY EXIST!")
         db.execute("INSERT INTO users (fname,lname,email,password) VALUES (:fname,:lname,:email,:password)", {"fname":fname,"lname":lname,"email":email,"password":bcrypt.generate_password_hash(password)})
         db.commit()
-        return render_template('reg.html')
+        session['fname'] = fname
+        return redirect(url_for("index"))
     return render_template('signup.html',title='REGISTER')
 
 
@@ -75,8 +112,8 @@ def login():
                   fname = user.fname
                   session['fname'] = fname[0]
                   return redirect(url_for("index"))
-            return render_template("error.html",error="WRONG PASSWORD!!")
-        return "not req"
+            return render_template("login.html",error="WRONG PASSWORD!!")
+        return render_template('signup.html',title='REGISTER',error="NO USER WITH THAT EMAIL ADDRESS")
 
     
     return render_template("login.html")

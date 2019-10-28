@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='book.css') }}">
+
+{% endblock %}
+
+
+
+{% block body %}
+
+
+  <!-- Image Section - set the background image for the header in the line below -->
+  <section class="py-5 bg-image-full" style="background-image: url('https://unsplash.it/1900/1080?image=1081');">
+    <!-- Put anything you want here! There is just a spacer below for demo purposes! -->
+    <div style="height: 200px;"></div>
+  </section>
+
+
+<!-- Content section -->
+<section class="py-5">
+    <div class="container">
+      <h1>{{book.title}}</h1>
+      <p class="lead">{{book.author}}</p>
+      <p>{{book.year}}</p>
+    </div>
+  </section>
+
+{% if reviews %}
+{% for review in reviews %}
+<div class="card border-dark mb-3" style="max-width: 18rem;">
+        <div class="card-header">{{review.fname}} :</div>
+        <div class="card-body text-dark">
+                <div>
+                        {% if review.rating %}
+                        {% for star in range(review.rating) %}
+                        <span style="color: #FFD700;" class="fa fa-star checked"></span>
+                        
+                        
+                        
+                        {% endfor %}
+                        {% endif %}
+                </div> 
+          <p class="card-text">{{ review.body }}</p>
+          <p class="card-text">{{ review.date }}</p>
+        </div>
+      </div>
+    
+   
+
+{% endfor %}
+{% endif %}
+
+
+
+
+
+
+  <h3>WHATE DO YOU THINK:</h3>
+
+  <form  method="POST" action="{{ url_for('review') }}"  >
+
+        <fieldset name="rating" class="rating">
+                <input type="radio" id="star5" name="rating" value="5" /><label class = "full" for="star5" title="Awesome - 5 stars"></label>
+                
+                <input type="radio" id="star4" name="rating" value="4" /><label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+                
+                <input type="radio" id="star3" name="rating" value="3" /><label class = "full" for="star3" title="Meh - 3 stars"></label>
+                
+                <input type="radio" id="star2" name="rating" value="2" /><label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+                
+                <input type="radio" id="star1" name="rating" value="1" /><label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+               
+            </fieldset>
+        <div class="form-group">
+                
+                <textarea name="body" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+              </div>
+              <input  name='book_id' value="{{book.id}}" type="hidden" > 
+              <button type="submit" class="btn btn-outline-success">Add</button>
+
+
+  </form>
+
+
+
+
+
+{% endblock %}
