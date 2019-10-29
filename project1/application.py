@@ -41,47 +41,70 @@ def index():
 @app.route("/search", methods=["GET"])
 def search():
     if request.method == 'GET':
-        title = request.args.get("title").lower()
-      
-        title = '%' + title + '%'
-        books = db.execute("SELECT * FROM books WHERE LOWER(title) LIKE :title OR LOWER(isbn) LIKE :title OR LOWER(author) LIKE :title OR year LIKE :title",{"title": title}).fetchall()
-        db.commit()
-        print (books)
-        return render_template("search.html", books=books)
+        if "fname" in session:
+
+            title = request.args.get("title").lower()
+            title = '%' + title + '%'
+            books = db.execute("SELECT * FROM books WHERE LOWER(title) LIKE :title OR LOWER(isbn) LIKE :title OR LOWER(author) LIKE :title OR year LIKE :title",{"title": title}).fetchall()
+            db.commit()
+            if book:
+                print (books)
+                return render_template("search.html", books=books,name=session['fname'])
+
+            return render_template("error.html",error="NO BOOK",name=username)
+        else:
+            title = request.args.get("title").lower()
+            title = '%' + title + '%'
+            books = db.execute("SELECT * FROM books WHERE LOWER(title) LIKE :title OR LOWER(isbn) LIKE :title OR LOWER(author) LIKE :title OR year LIKE :title",{"title": title}).fetchall()
+            db.commit()
+            if book:
+                print (books)
+                return render_template("search.html", books=books)
+
+            return render_template("error.html",error="NO BOOK")
     return render_templatee("index.html")
 
 
 
 @app.route('/book/<int:book_id>')
 def book(book_id):
-    book = db.execute("SELECT * FROM books WHERE id = :id",{'id' : book_id}).fetchall()
-    print(book)
+    book = db.execute("SELECT * FROM books WHERE id = :id",{'id' : book_id}).fetchone()
     if book is None :
         return render_template("error.html",error="NO BOOK")
-    reviews = db.execute("SELECT fname, date, rating, body FROM reviews JOIN users ON user_id = users.id WHERE book_id = :book_id ORDER BY reviews.id DESC ",{'book_id':book_id}).fetchall()
-    print(reviews[0].fname)
-    
-    return render_template('book.html',book=book[0],reviews=reviews)
+    reviews = db.execute("SELECT fname, date, rating, body FROM reviews JOIN users ON user_id = users.id WHERE book_id = :book_id ORDER BY reviews.id DESC ",{'book_id':book_id}).fetchone()
+    db.commit()
+    if 'fname' in session:
+        print(book)
+        username = session["fname"]
+        return render_template('book.html',book=book,reviews=reviews,name=username)
+        
+    return render_template('book.html',book=book,reviews=reviews)
+
+
+
 
 @app.route('/review',methods=['POST'])
 def review():
     book_id = request.form.get('book_id')
+    book = db.execute("SELECT * FROM books WHERE id = :id",{'id' : book_id}).fetchone()
+    reviews = db.execute("SELECT fname, date, rating, body FROM reviews JOIN users ON user_id = users.id WHERE book_id = :book_id ORDER BY reviews.id DESC ",{'book_id':book_id}).fetchall()
+    db.commit()
     if "fname" in session:
-        print('hello')
         fname = session['fname']
         body = request.form.get('body')
         rating = request.form.get('rating')
         date = datetime.date(datetime.now())
-       
-        user_id = db.execute("SELECT * FROM users WHERE fname = :fname ",{"fname":fname}).fetchone()
-        user_id = user_id.id
+        user_id = db.execute("SELECT id FROM users WHERE fname = :fname ",{"fname":fname}).fetchone()
+        db.commit()
+        user_id = user_id[0]
+        if  db.execute("SELECT user_id,book_id  FROM reviews  WHERE user_id=:user_id AND book_id=:book_id",{'user_id':user_id,'book_id':book_id}).rowcount == 1:
+            return render_template('book.html',book=book,reviews=reviews,error="CAN NOT REVIEW TWICE!",name=fname)
         db.execute("INSERT INTO reviews (user_id, book_id, date, body, rating) VALUES (:user_id, :book_id,:date, :body, :rating)",{'user_id':user_id,'book_id':book_id, 'date':date ,'body':body,'rating':rating})
         db.commit()
         return redirect(url_for("book",book_id = book_id))
-    return redirect(url_for("book",book_id = book_id))
-
-
-
+    reviews = db.execute("SELECT fname, date, rating, body FROM reviews JOIN users ON user_id = users.id WHERE book_id = :book_id ORDER BY reviews.id DESC ",{'book_id':book_id}).fetchall()
+    db.commit()
+    return render_template('book.html',book=book,reviews=reviews,error="LOGIN FIRST!")
 
 @app.route("/signup",methods=['POST','GET'])
 def signup():
@@ -92,7 +115,7 @@ def signup():
         password=request.form.get('password')
         if db.execute("SELECT * FROM users WHERE email = :email ",{"email":email}).rowcount == 1 :
             return render_template('login.html',error="USER ALREADY EXIST!")
-        db.execute("INSERT INTO users (fname,lname,email,password) VALUES (:fname,:lname,:email,:password)", {"fname":fname,"lname":lname,"email":email,"password":bcrypt.generate_password_hash(password)})
+        db.execute("INSERT INTO users (fname,lname,email,password) VALUES (:fname,:lname,:email,:password)", {"fname":fname,"lname":lname,"email":email,"password":bcrypt.generate_password_hash(password).decode("utf-8")})
         db.commit()
         session['fname'] = fname
         return redirect(url_for("index"))
@@ -104,11 +127,10 @@ def login():
     if request.method=='POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        password = bcrypt.generate_password_hash(password)
         if db.execute("SELECT * FROM users WHERE email = :email ",{"email":email}).rowcount == 1 :
             user = db.execute("SELECT * FROM users WHERE email=:email",{"email":email}).fetchone()
             dbpassword = user.password
-            if bcrypt.check_password_hash(password,dbpassword):
+            if bcrypt.check_password_hash(dbpassword,password):
                   fname = user.fname
                   session['fname'] = fname[0]
                   return redirect(url_for("index"))

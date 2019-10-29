@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 
 {% block style %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='book.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 
 {% endblock %}
 
@@ -12,13 +13,14 @@
 
 
   <!-- Image Section - set the background image for the header in the line below -->
-  <section class="py-5 bg-image-full" style="background-image: url('https://unsplash.it/1900/1080?image=1081');">
+  <section class="py-5 bg-image-full" style="background-image: url('https://www.kaplaninternational.com/blog/files/inline-images/classic%20books_0.jpg');">
     <!-- Put anything you want here! There is just a spacer below for demo purposes! -->
     <div style="height: 200px;"></div>
   </section>
 
 
 <!-- Content section -->
+
 <section class="py-5">
     <div class="container">
       <h1>{{book.title}}</h1>
@@ -26,11 +28,11 @@
       <p>{{book.year}}</p>
     </div>
   </section>
-
+<div class="container">
 {% if reviews %}
 {% for review in reviews %}
 <div class="card border-dark mb-3" style="max-width: 18rem;">
-        <div class="card-header">{{review.fname}} :</div>
+        <div class="card-header">@{{review.fname}} :</div>
         <div class="card-body text-dark">
                 <div>
                         {% if review.rating %}
@@ -47,17 +49,18 @@
         </div>
       </div>
     
-   
-
 {% endfor %}
+
+{% endif %}
+
+
+{% if error  %}
+     <p style="color: rgb(255, 0, 0); text-align:center ">{{error}}</p>
 {% endif %}
 
 
 
-
-
-
-  <h3>WHATE DO YOU THINK:</h3>
+<h5>WHATE DO YOU THINK:</h5>
 
   <form  method="POST" action="{{ url_for('review') }}"  >
 
@@ -78,11 +81,11 @@
                 <textarea name="body" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
               </div>
               <input  name='book_id' value="{{book.id}}" type="hidden" > 
-              <button type="submit" class="btn btn-outline-success">Add</button>
+              <button type="submit" class="btn btn-outline-primary">Add</button>
 
 
   </form>
-
+</div>
 
 
 
