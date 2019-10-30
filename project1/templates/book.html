@@ -29,8 +29,48 @@
     </div>
   </section>
 <div class="container">
+
+
+
+
+
+
+
+
+<h5>WHATE DO YOU THINK:</h5>
+{% if error  %}
+    <p style="color: rgb(255, 0, 0); ">{{error}}</p>
+{% endif %}
+
+ <form  method="POST" action="{{ url_for('review') }}"  >
+
+       <fieldset name="rating" class="rating">
+               <input type="radio" id="star5" name="rating" value="5" /><label class = "full" for="star5" title="Awesome - 5 stars"></label>
+               
+               <input type="radio" id="star4" name="rating" value="4" /><label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+               
+               <input type="radio" id="star3" name="rating" value="3" /><label class = "full" for="star3" title="Meh - 3 stars"></label>
+               
+               <input type="radio" id="star2" name="rating" value="2" /><label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+               
+               <input type="radio" id="star1" name="rating" value="1" /><label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+              
+           </fieldset>
+       <div class="form-group">
+               
+               <textarea name="body" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+             </div>
+             <input  name='book_id' value="{{book.id}}" type="hidden" > 
+             <button type="submit" class="btn btn-outline-primary">Add</button>
+
+
+ </form>
+
+
 {% if reviews %}
+<div class="row">
 {% for review in reviews %}
+<div class="col-sm-12">
 <div class="card border-dark mb-3" style="max-width: 18rem;">
         <div class="card-header">@{{review.fname}} :</div>
         <div class="card-body text-dark">
@@ -48,43 +88,35 @@
           <p class="card-text">{{ review.date }}</p>
         </div>
       </div>
-    
+</div>
 {% endfor %}
+</div>
+{% endif %}
+
+
+{% if nrating and arating %}
+
+<div class="card border-info mb-3" style="max-width: 18rem;margin-top:2rem">
+    <div class="card-header">Goodreads Review:</div>
+    <div class="card-body">
+        <p class="card-text">average rating: {{arating}}</p>
+      <p class="card-text">number of ratings: {{nrating}}</p>
+      <a href="https://www.goodreads.com/" class="btn btn-outline-info">Goodreads Website </a>
+    </div>
+  </div>
+
+
+
+
 
 {% endif %}
 
 
-{% if error  %}
-     <p style="color: rgb(255, 0, 0); text-align:center ">{{error}}</p>
-{% endif %}
 
 
 
-<h5>WHATE DO YOU THINK:</h5>
-
-  <form  method="POST" action="{{ url_for('review') }}"  >
-
-        <fieldset name="rating" class="rating">
-                <input type="radio" id="star5" name="rating" value="5" /><label class = "full" for="star5" title="Awesome - 5 stars"></label>
-                
-                <input type="radio" id="star4" name="rating" value="4" /><label class = "full" for="star4" title="Pretty good - 4 stars"></label>
-                
-                <input type="radio" id="star3" name="rating" value="3" /><label class = "full" for="star3" title="Meh - 3 stars"></label>
-                
-                <input type="radio" id="star2" name="rating" value="2" /><label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
-                
-                <input type="radio" id="star1" name="rating" value="1" /><label class = "full" for="star1" title="Sucks big time - 1 star"></label>
-               
-            </fieldset>
-        <div class="form-group">
-                
-                <textarea name="body" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-              </div>
-              <input  name='book_id' value="{{book.id}}" type="hidden" > 
-              <button type="submit" class="btn btn-outline-primary">Add</button>
 
 
-  </form>
 </div>
 
 

@@ -10,10 +10,6 @@
  
 {% block body %}
 <div  style="height: 100vh;padding:0;display: flex;align-items: center;justify-content: center" class="container-fluid">
-
-        {% if name %}
-           <h1>HELLO {{name}}</h1>
-        {% endif %}
    
             <form method="GET" action="{{ url_for('search') }}"  style="margin: 9rem;" class="input-group">
                         

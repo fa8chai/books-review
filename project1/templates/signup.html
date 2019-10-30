@@ -2,33 +2,81 @@
 
 {% block body%}
 <div class="container" style="margin-top: 7rem;">
+    <div class="container" style="width: 90%;">
 <!-- Default form register -->
-<form class="text-center border border-light p-5" method="post" action="{{ url_for('signup') }}">
-        {% if error %}
-        <span style="color: brown;">{{error}}</span>
+<form novalidate class="text-center border border-light p-5" method="post" action="{{ url_for('signup') }}">
+        {{ form.hidden_tag() }}
+    
+    {% if error %}
+        <span style="color: rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{error}}</span>
         
         {% endif %}
         <p class="h4 mb-4">Sign up</p>
-    
+     
         
-           
+           <p>
                 <!-- username -->
-                <input name="fname" type="text" id="defaultRegisterFormFirstName" class="form-control  mb-4" placeholder="username">
-           
-                <!-- full name -->
-                <input name="lname" type="text" id="defaultRegisterFormLastName" class="form-control  mb-4" placeholder="Full name">
+                {{ form.fname( class="form-control ",placeholder='username') }}
+                {% if serror %}
+                      <span style="color: rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{serror}}</span>
+        
+                {% endif %}
+
+                {% if form.fname.errors%}
+                {% for error in form.fname.errors %}
+                   <span style="color:rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{ error }}</span>
+                   {% endfor %}
+                
+                {% endif %}
          
+           </p>
+                <!-- full name -->
+
+                <p>
+                {{ form.lname(class="form-control ",placeholder='Full Name')}}
+         
+                {% if form.lname.errors%}
+                {% for error in form.lname.errors %}
+                   <span  style="color: rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{ error }}</span>
+                   {% endfor %}
+                
+                {% endif %}
+         
+         
+            </p>
     
         <!-- E-mail -->
-        <input name="email" type="email" id="defaultRegisterFormEmail" class="form-control mb-4" placeholder="E-mail">
-    
+        <p>
+        {{ form.email(class="form-control  ",placeholder='Email Address')}}
+         {% if form.email.errors%}
+         {% for error in form.email.errors %}
+            <span style="color:rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{ error }}</span>
+            {% endfor %}
+         
+         {% endif %}
+         </p>
+
+
         <!-- Password -->
-        <input name="password" type="password" id="defaultRegisterFormPassword" class="form-control" placeholder="Password" aria-describedby="defaultRegisterFormPasswordHelpBlock">
+
+        <p>
+        {{ form.password(class="form-control ",placeholder='Password')}}
+        {% if form.password.errors%}
+        {% for error in form.password.errors %}
+           <span style="color:rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{ error }}</span>
+           {% endfor %}
+        
+        {% endif %}
+        
+        
         <small id="defaultRegisterFormPasswordHelpBlock" class="form-text text-muted mb-4">
-            At least 8 characters and 1 digit
+            At least 8 characters
         </small>
+
+        </p>
         <!-- Sign up button -->
-        <button class="btn btn-info my-4 btn-block" type="submit">Sign in</button>
+        <p>{{ form.submit(class="btn btn-info my-4 btn-block") }}</p>
+        
     
         <!-- Social register -->
     
@@ -39,6 +87,7 @@
     
     </form>
     <!-- Default form register -->
+    </div>
     </div>
 {% endblock %}
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
