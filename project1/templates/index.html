@@ -5,13 +5,17 @@
  {% block style %}
    
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='index-style.css') }}">
- {% endblock %}
+    {% endblock %}
 
  
 {% block body %}
-<div  style="height: 100vh;padding:0;display: flex;align-items: center;justify-content: center" class="container-fluid">
-   
-            <form method="GET" action="{{ url_for('search') }}"  style="margin: 9rem;" class="input-group">
+
+
+<div class="container">
+
+<div  style="height: 100vh;padding:0;display: flex;align-items: center;justify-content: center;flex-direction:column" class="container-fluid">
+  <h1 style="position:absolute;top:19rem;color: white;font-size:50px">BOOK<span style="font-size: 30px;">LI</span><span  style="display: block;font-size:30px;margin-left:40px;">Search for books ...</span><span style="display: block;font-size:17px;margin-left:20px;margin-top:20px">isbn, title, author, year</span></h1>
+            <form method="GET" action="{{ url_for('search') }}" class="input-group">
                         
               
                 <input name="title" type="text" class="form-control" placeholder="Search" >
@@ -22,9 +26,15 @@
                             <i class="fa fa-search"></i>
                           </button>
                         </div>
+
+                      </form>
+                   
+
+
                       </div>
-      
+
      
      
-                  </form>
+                 
+               </div>
      {% endblock %}

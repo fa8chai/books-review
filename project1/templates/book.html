@@ -28,7 +28,9 @@
       <p>{{book.year}}</p>
     </div>
   </section>
-<div class="container">
+
+
+<div class="container" style="width: 70%;">
 
 
 
@@ -37,12 +39,12 @@
 
 
 
-<h5>WHATE DO YOU THINK:</h5>
+<h5>WHAT DO YOU THINK:</h5>
 {% if error  %}
     <p style="color: rgb(255, 0, 0); ">{{error}}</p>
 {% endif %}
 
- <form  method="POST" action="{{ url_for('review') }}"  >
+ <form style="margin-bottom: 6rem;"  method="POST" action="{{ url_for('review') }}"  >
 
        <fieldset name="rating" class="rating">
                <input type="radio" id="star5" name="rating" value="5" /><label class = "full" for="star5" title="Awesome - 5 stars"></label>
@@ -58,10 +60,10 @@
            </fieldset>
        <div class="form-group">
                
-               <textarea name="body" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+               <textarea name="body" class="form-control" id="exampleFormControlTextarea1" rows="3" required ></textarea>
              </div>
              <input  name='book_id' value="{{book.id}}" type="hidden" > 
-             <button type="submit" class="btn btn-outline-primary">Add</button>
+             <button  type="submit" class="btn btn-outline-primary">Review</button>
 
 
  </form>
@@ -70,10 +72,10 @@
 {% if reviews %}
 <div class="row">
 {% for review in reviews %}
-<div class="col-sm-12">
-<div class="card border-dark mb-3" style="max-width: 18rem;">
-        <div class="card-header">@{{review.fname}} :</div>
-        <div class="card-body text-dark">
+<div class="col-md-7">
+<div class="card mb-3 " style="margin-left:3rem;height:8rem" >
+        <div class="card-header" style="padding: 3px;">@{{review.fname}} :</div>
+        <div class="card-body text-dark" style="padding: 10px;">
                 <div>
                         {% if review.rating %}
                         {% for star in range(review.rating) %}
@@ -82,17 +84,26 @@
                         
                         
                         {% endfor %}
+                        
+                        {% else %}
+                        <span style="color: rgb(180, 180, 180);" class="fa fa-star checked"></span>
+                        <span style="color: rgb(180, 180, 180);" class="fa fa-star checked"></span>
+                        <span style="color: rgb(180, 180, 180);" class="fa fa-star checked"></span>
+                        <span style="color: rgb(180, 180, 180);" class="fa fa-star checked"></span>
+                        <span style="color: rgb(180, 180, 180);" class="fa fa-star checked"></span>
+
+                         
                         {% endif %}
                 </div> 
-          <p class="card-text">{{ review.body }}</p>
-          <p class="card-text">{{ review.date }}</p>
+          <p class="card-text" style="margin: 0;margin-bottom:15px" >{{ review.body }}</p>
+          <small class="card-text"  >{{ review.date }}</small>
         </div>
       </div>
 </div>
 {% endfor %}
 </div>
 {% endif %}
-
+<hr>
 
 {% if nrating and arating %}
 
@@ -101,7 +112,7 @@
     <div class="card-body">
         <p class="card-text">average rating: {{arating}}</p>
       <p class="card-text">number of ratings: {{nrating}}</p>
-      <a href="https://www.goodreads.com/" class="btn btn-outline-info">Goodreads Website </a>
+      <a href="https://www.goodreads.com/" target="blank" class="btn btn-outline-info">Goodreads Website </a>
     </div>
   </div>
 

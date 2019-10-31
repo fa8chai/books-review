@@ -14,56 +14,51 @@
         <p class="h4 mb-4">Sign up</p>
      
         
-           <p>
+        <h6 class="mb-4" style="font-size: 15px;">
                 <!-- username -->
                 {{ form.fname( class="form-control ",placeholder='username') }}
-                {% if serror %}
-                      <span style="color: rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{serror}}</span>
-        
-                {% endif %}
-
                 {% if form.fname.errors%}
-                {% for error in form.fname.errors %}
-                   <span style="color:rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{ error }}</span>
+                    {% for error in form.fname.errors %}
+                        <p style="padding:5px;margin:0px;color:rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{ error }}</p>
                    {% endfor %}
                 
                 {% endif %}
          
-           </p>
+        </h6>
                 <!-- full name -->
 
-                <p>
-                {{ form.lname(class="form-control ",placeholder='Full Name')}}
+                <h6 class="mb-4" style="font-size: 15px;" >
+                {{ form.lname(class="form-control",placeholder='Full Name')}}
          
                 {% if form.lname.errors%}
                 {% for error in form.lname.errors %}
-                   <span  style="color: rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{ error }}</span>
+                   <p  style="padding:5px;color: rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{ error }}</p>
                    {% endfor %}
                 
                 {% endif %}
          
          
-            </p>
+                </h6>
     
         <!-- E-mail -->
-        <p>
-        {{ form.email(class="form-control  ",placeholder='Email Address')}}
+        <h6 class="mb-4" style="font-size: 15px;">
+        {{ form.email(class="form-control",placeholder='Email Address')}}
          {% if form.email.errors%}
          {% for error in form.email.errors %}
-            <span style="color:rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{ error }}</span>
+            <p style="padding:5px;color:rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{ error }}</p>
             {% endfor %}
          
          {% endif %}
-         </p>
+        </h6>
 
 
         <!-- Password -->
 
-        <p>
-        {{ form.password(class="form-control ",placeholder='Password')}}
+        <h6 class="mb-4" style="font-size: 15px;">
+        {{ form.password(class="form-control",placeholder='Password')}}
         {% if form.password.errors%}
         {% for error in form.password.errors %}
-           <span style="color:rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{ error }}</span>
+           <p style="padding:5px;color:rgb(236, 0, 0);background-color:rgb(255, 223, 223)">{{ error }}</p>
            {% endfor %}
         
         {% endif %}
@@ -73,17 +68,19 @@
             At least 8 characters
         </small>
 
-        </p>
+    </h6>
         <!-- Sign up button -->
         <p>{{ form.submit(class="btn btn-info my-4 btn-block") }}</p>
         
     
-        <!-- Social register -->
+        <p>Already have an account?
+            <a href="{{url_for('login')}}">Login</a>
+        </p>
     
         <!-- Terms of service -->
         <p>By clicking
             <em>Sign up</em> you agree to our
-            <a href="" target="_blank">terms of service</a>
+            <a href="#">terms of service</a>
     
     </form>
     <!-- Default form register -->

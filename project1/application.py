@@ -14,21 +14,30 @@ from wtforms.validators import ValidationError, DataRequired, Email, EqualTo,Len
 
 
 class RegistrationForm(FlaskForm):
-    fname = StringField('Username',validators= [DataRequired(),Length(min=3, max=15)])
-    lname = StringField('Full Name', validators=[DataRequired(),Length(min=6, max=25)])
-    email = StringField('Email Address',validators= [DataRequired(),Email(message=('That is not a valid email address.'))])
-    password = PasswordField('New Password',validators= [DataRequired(),Length(min=8, max=25)])
+    fname = StringField('Username',validators= [DataRequired(message="Please enter a username"),Length(min=4, max=18,message="username must be between 4 and 18 characters long")])
+    lname = StringField('Full Name', validators=[DataRequired(message="Please enter your full name"),Length(min=6, max=25)])
+    email = StringField('Email Address',validators= [DataRequired(message="Please enter your email"),Email(message=('That is not a valid email address'))])
+    password = PasswordField('New Password',validators= [DataRequired(message="Please enter a password"),Length(min=8, max=20,message="Password must be between 8 and 20 characters long")])
     submit = SubmitField('Register')
 
 
+    def validate_fname(form, field):
+        if db.execute("SELECT * FROM users WHERE fname = :fname ",{"fname":field.data}).rowcount == 1 :
+            raise ValidationError(f'{field.data} aleady taken')
+
+    def validate_email(form, field):
+         if db.execute("SELECT * FROM users WHERE email = :email ",{"email":field.data}).rowcount == 1 :
+             raise ValidationError('email address already exists')
+
+
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(),Email(message=('That is not a valid email address.'))])
-    password = PasswordField('Password', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(message="Please enter your email"),Email(message=('That is not a valid email address'))])
+    password = PasswordField('Password', validators=[DataRequired(message="Please enter your password")])
     submit = SubmitField('Login')
 
-
-
-
+    def validate_email(form,field):
+        if db.execute("SELECT * FROM users WHERE email = :email ",{"email":field.data}).rowcount == 0 :
+            raise ValidationError('Email not registered')
 
 
 
@@ -159,6 +168,11 @@ def review():
     book = db.execute("SELECT * FROM books WHERE id = :id",{'id' : book_id}).fetchone()
     reviews = db.execute("SELECT fname, date, rating, body FROM reviews JOIN users ON user_id = users.id WHERE book_id = :book_id ORDER BY reviews.id DESC ",{'book_id':book_id}).fetchall()
     db.commit()
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "s18kbfQ47SeAy9WFej1gBA", "isbns": book.isbn})
+    res = res.json()
+    number_of_ratings = res['books'][0]['work_ratings_count']
+    average_rating = res['books'][0]['average_rating']
+       
     if "fname" in session:
         fname = session['fname']
         body = request.form.get('body')
@@ -168,7 +182,7 @@ def review():
         db.commit()
         user_id = user_id[0]
         if  db.execute("SELECT user_id,book_id  FROM reviews  WHERE user_id=:user_id AND book_id=:book_id",{'user_id':user_id,'book_id':book_id}).rowcount == 1:
-            return render_template('book.html',book=book,reviews=reviews,error="CAN NOT REVIEW TWICE!",name=fname)
+            return render_template('book.html',book=book,reviews=reviews,error="CAN'T REVIEW TWICE!",name=fname,nrating=number_of_ratings,arating=average_rating )
         db.execute("INSERT INTO reviews (user_id, book_id, date, body, rating) VALUES (:user_id, :book_id,:date, :body, :rating)",{'user_id':user_id,'book_id':book_id, 'date':date ,'body':body,'rating':rating})
         db.commit()
         return redirect(url_for("book",book_id = book_id))
@@ -181,18 +195,11 @@ def review():
 @app.route("/signup",methods=['POST','GET'])
 def signup():
     form = RegistrationForm()
-    if request.method=='POST' and form.validate_on_submit() :
+    if request.method =='POST' and form.validate_on_submit() :
         fname=request.form.get('fname')
         lname=request.form.get('lname')
         email=request.form.get('email')
         password=request.form.get('password')
-        if db.execute("SELECT * FROM users WHERE email = :email ",{"email":email}).rowcount == 1 :
-            return render_template('login.html',error="USER ALREADY EXIST!")
-
-        if db.execute("SELECT * FROM users WHERE fname = :fname ",{"fname":fname}).rowcount == 1 :
-            return render_template('signup.html',title='REGISTER',serror="USERNAME ALREADY TAKEN!",form = form)
-
-
         db.execute("INSERT INTO users (fname,lname,email,password) VALUES (:fname,:lname,:email,:password)", {"fname":fname,"lname":lname,"email":email,"password":bcrypt.generate_password_hash(password).decode("utf-8")})
         db.commit()
         session['fname'] = fname
@@ -203,20 +210,16 @@ def signup():
 @app.route("/login",methods=['GET','POST'])
 def login():
     form = LoginForm()
-    if request.method=='POST':
+    if request.method=='POST' and form.validate_on_submit() :
         email = request.form.get('email')
         password = request.form.get('password')
-        if db.execute("SELECT * FROM users WHERE email = :email ",{"email":email}).rowcount == 1 :
-            user = db.execute("SELECT * FROM users WHERE email=:email",{"email":email}).fetchone()
-            dbpassword = user.password
-            if bcrypt.check_password_hash(dbpassword,password):
-                  fname = user.fname
-                  session['fname'] = fname[0]
-                  return redirect(url_for("index"))
-            return render_template("login.html",error="WRONG PASSWORD!!" ,form=form)
-        return render_template('signup.html',title='REGISTER',error=" THERE IS NO USER WITH THAT EMAIL ADDRESS")
-
-    
+        user = db.execute("SELECT * FROM users WHERE email=:email",{"email":email}).fetchone()
+        dbpassword = user.password
+        if not bcrypt.check_password_hash(dbpassword,password):
+            return render_template("login.html",form=form,perror="Password is incorrect")
+        fname = user.fname
+        session['fname'] = fname[0]
+        return redirect(url_for("index"))
     return render_template("login.html",form=form)
 
 @app.route('/logout')
